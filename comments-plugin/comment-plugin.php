@@ -8,18 +8,16 @@
  */
 
 class comment_widget extends WP_Widget{
-
+    //Widgets settings
     function __construct(){
         $widget_options = array(
             'classname' =>'comment_widget',
             'description' => 'Get posts comments from a category.'
         );
-
         parent::__construct('comment_widget','Comments widget', $widget_options);
         }
 
-    //function to output the widget form
-
+    //function to output the widget form in customize, and widget site
     function form( $instance ) {
         $headline = ! empty( $instance['headline'] ) ? $instance['headline'] : '';
         $text = ! empty( $instance['text'] ) ? $instance['text'] : 'Your category here';
@@ -33,46 +31,43 @@ class comment_widget extends WP_Widget{
 
     <?php }
 
+    //Function to update the instance
     function update( $new_instance, $old_instance ) {
         $instance = $old_instance;
         $instance['headline'] = strip_tags( $new_instance['headline'] );
         $instance['text'] = strip_tags( $new_instance['text'] );
         return $instance;          
-    
     }
 
-    //function to display the widget in the site
-
-    function widget( $args, $instance ) {
+ //function to display the widget in the site
+ function widget( $args, $instance ) {
         //define variables
         $text = $instance['text'];
         $headline = $instance['headline'];
-        /** Get post id*/
-    $argse = array(
+      
+        $argse = array(
             'category_name' => $text
-            
-    );
+        );
+        //Gets post id in the choosen category
         $post = get_posts($argse);
         foreach($post as $post) :
             $idOfLatestPost = $post->ID ;
-            $date = get_the_date( 'd m Y', $post->ID );
+          //  $date = get_the_date( 'd m Y', $post->ID );   //uncomment if you want to only display the widget when there is a post from todays date
         break;
         endforeach;	
-        $todaysDate = date('d m Y');
-       
-       // if($date === $todaysDate){
-        /** get comments */
+       // $todaysDate = date('d m Y');   //uncomment if you want to only display the widget when there is a post from todays date
+       // if($date === $todaysDate){     //uncomment if you want to only display the widget when there is a post from todays date
+       //arguments for the comments
         $args = array(
-            'number'=> 4,
-                'post_id' => $idOfLatestPost,
+                'number'=> 5,  //gets the five last comments
+                'post_id' => $idOfLatestPost, //the id of the post to get the comments from
         );
     
-        //output code
+        //Widget out put
         echo $args['before_widget'];
         ?>
         <div class="commentsWidget" id="commentsWidgets">
             <h2><?php echo $headline; ?></h2>
-        
             <?php 
             $comments = get_comments($args);
             foreach($comments as $comments) :
@@ -86,26 +81,22 @@ class comment_widget extends WP_Widget{
                         </div>
                     </div>
             <?php endforeach; ?>
-        
         </div>
     
         <?php
         echo $args['after_widget'];
      
        wp_reset_query();
-         //   }
+         //   }   //uncomment if you want to only display the widget when there is a post from todays date
     }
 }
-
     //function to register the widget
     function register_comments_widget() {
-
         register_widget( 'comment_widget' );
-        
     }
-
     add_action( 'widgets_init', 'register_comments_widget' );
 
+    //function to register css and Js files. 
     function wpse_load_plugin_css() {
         $plugin_url = plugin_dir_url( __FILE__ );
     
